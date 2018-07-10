@@ -1,0 +1,36 @@
+{
+  "name": "ips.js",
+  "version": "0.1.0",
+  "description": "IPS patching utility",
+  "main": "lib/ips.js",
+  "author": "Keith McKnight <keith@mcknig.ht>",
+  "license": "ISC",
+  "scripts": {
+    "build": "rm -rf lib && babel src -d lib",
+    "lint": "eslint src"
+  },
+  "bin": {
+    "ips": "lib/cli.js"
+  },
+  "dependencies": {
+    "chalk": "^2.4.1",
+    "commander": "^2.16.0",
+    "minimist": "^1.2.0",
+    "winston": "^3.0.0"
+  },
+  "devDependencies": {
+    "babel-cli": "^6.26.0",
+    "babel-core": "^6.26.3",
+    "babel-eslint": "^8.2.5",
+    "babel-jest": "^23.2.0",
+    "babel-plugin-transform-object-rest-spread": "^6.26.0",
+    "babel-preset-env": "^1.7.0",
+    "eslint": "^4",
+    "eslint-config-airbnb-base": "^13.0.0",
+    "eslint-plugin-import": "^2.13.0",
+    "jest-cli": "^23.3.0"
+  },
+  "files": [
+    "lib"
+  ]
+}
