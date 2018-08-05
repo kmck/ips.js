@@ -11,6 +11,7 @@ export default function applyIpsPatch(sourceFile, patchFile, options = {}) {
   const { length: sourceFileLength } = sourceFile;
   const { length: patchFileLength } = patchFile;
   let index = 0;
+  let totalBytes = 0;
 
   const targetFile = Buffer.from(sourceFile);
 
@@ -51,6 +52,7 @@ export default function applyIpsPatch(sourceFile, patchFile, options = {}) {
       for (let i = 0; i < length; i++) {
         targetFile.writeUInt8(payload[i], offset + i);
       }
+      totalBytes += length;
     } else {
       // RLE hunk
       const runLength = toIntBE(readPatchData(2));
@@ -62,8 +64,11 @@ export default function applyIpsPatch(sourceFile, patchFile, options = {}) {
       for (let i = 0; i < runLength; i++) {
         targetFile.writeUInt8(payload, offset + i);
       }
+      totalBytes += length;
     }
   }
+
+  log(`Wrote ${totalBytes} bytes`);
 
   return targetFile;
 }

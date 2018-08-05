@@ -1,13 +1,15 @@
 {
   "name": "ips.js",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "IPS patching utility",
   "main": "lib/ips.js",
   "author": "Keith McKnight <keith@mcknig.ht>",
   "license": "ISC",
   "scripts": {
     "build": "rm -rf lib && babel src -d lib",
-    "lint": "eslint src"
+    "start": "babel src -w -d lib",
+    "lint": "eslint src",
+    "test": "jest src"
   },
   "bin": {
     "ips": "lib/cli.js"

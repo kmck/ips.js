@@ -17,6 +17,7 @@ function applyIpsPatchFile(source, patch, target, options = {}) {
   const {
     allowOverwrite = false,
     checkSourceMd5 = null,
+    dryRun = false,
   } = options;
 
   if (!source) {
@@ -44,7 +45,7 @@ function applyIpsPatchFile(source, patch, target, options = {}) {
     return 1;
   }
 
-  if (!allowOverwrite && fs.existsSync(target)) {
+  if (!(allowOverwrite || dryRun) && fs.existsSync(target)) {
     logger.error('Destination file already exists: %s', target);
     return 1;
   }
@@ -74,7 +75,11 @@ function applyIpsPatchFile(source, patch, target, options = {}) {
   try {
     targetFile = applyIpsPatch(sourceFile, patchFile, {
       log(...args) {
-        logger.debug(...args);
+        if (dryRun) {
+          logger.info(...args);
+        } else {
+          logger.debug(...args);
+        }
       },
     });
   } catch (e) {
@@ -82,12 +87,16 @@ function applyIpsPatchFile(source, patch, target, options = {}) {
     return 1;
   }
 
-  try {
-    fs.writeFileSync(target, targetFile);
-    logger.info('Wrote patched file: %s', target);
-  } catch (e) {
-    logger.error('Error writing patched file %s', target);
-    return 1;
+  if (dryRun) {
+    logger.info('Dry run! Not writing file: %s', target);
+  } else {
+    try {
+      fs.writeFileSync(target, targetFile);
+      logger.info('Wrote patched file: %s', target);
+    } catch (e) {
+      logger.error('Error writing patched file %s', target);
+      return 1;
+    }
   }
 
   const targetMd5 = crypto.createHash('md5').update(targetFile).digest('hex');
@@ -104,6 +113,7 @@ function applyIpsPatchFile(source, patch, target, options = {}) {
 function createIpsPatchFile(source, target, patch, options = {}) {
   const {
     allowOverwrite = false,
+    dryRun = false,
   } = options;
 
   if (!source) {
@@ -131,7 +141,7 @@ function createIpsPatchFile(source, target, patch, options = {}) {
     return 1;
   }
 
-  if (!allowOverwrite && fs.existsSync(patch)) {
+  if (!(allowOverwrite || dryRun) && fs.existsSync(patch)) {
     logger.error('Destination file already exists: %s', patch);
     return 1;
   }
@@ -156,7 +166,11 @@ function createIpsPatchFile(source, target, patch, options = {}) {
   try {
     patchFile = createIpsPatch(sourceFile, targetFile, {
       log(...args) {
-        logger.debug(...args);
+        if (dryRun) {
+          logger.info(...args);
+        } else {
+          logger.debug(...args);
+        }
       },
     });
   } catch (e) {
@@ -164,12 +178,16 @@ function createIpsPatchFile(source, target, patch, options = {}) {
     return 1;
   }
 
-  try {
-    fs.writeFileSync(patch, patchFile);
-    logger.info('Wrote patch file: %s', patch);
-  } catch (e) {
-    logger.error('Error writing patch file %s', patch);
-    return 1;
+  if (dryRun) {
+    logger.info('Dry run! Not writing file: %s', patch);
+  } else {
+    try {
+      fs.writeFileSync(patch, patchFile);
+      logger.info('Wrote patch file: %s', patch);
+    } catch (e) {
+      logger.error('Error writing patch file %s', patch);
+      return 1;
+    }
   }
 
   const patchMd5 = crypto.createHash('md5').update(patchFile).digest('hex');
@@ -196,6 +214,7 @@ program
   .command('apply <source> <patch> [target]')
   .option('--md5 [hash]', 'Check the source file against the MD5 hash before patching')
   .option('--allow-overwrite', 'Allow overwriting of destination file')
+  .option('--dry-run', 'Stop before writing the destination file')
   .description('apply a patch to the source file')
   .action((source, patch, target, cmd) => {
     if (!target) {
@@ -206,6 +225,7 @@ program
     }
     const result = applyIpsPatchFile(source, patch, target, {
       allowOverwrite: cmd.allowOverwrite,
+      dryRun: cmd.dryRun,
       checkSourceMd5: cmd.md5,
     });
     logger.on('finish', () => {
@@ -216,6 +236,7 @@ program
 program
   .command('create <source> <target> [patch]')
   .option('--allow-overwrite', 'Allow overwriting of destination file')
+  .option('--dry-run', 'Stop before writing the destination file')
   .description('create a patch from the source and target files')
   .action((source, target, patch, cmd) => {
     if (!patch) {
@@ -225,6 +246,7 @@ program
     }
     const result = createIpsPatchFile(source, target, patch, {
       allowOverwrite: cmd.allowOverwrite,
+      dryRun: cmd.dryRun,
     });
     logger.on('finish', () => {
       process.exit(result || 0);
