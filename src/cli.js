@@ -4,6 +4,7 @@
 import crypto from 'crypto';
 import fs from 'fs';
 import path from 'path';
+import crcHash from 'crc-hash';
 import program from 'commander';
 
 import logger from './logger';
@@ -54,21 +55,28 @@ function applyIpsPatchFile(source, patch, target, options = {}) {
   logger.info('Read source file: %s', source);
 
   const patchFile = fs.readFileSync(patch);
-  logger.info('Read patch file: %s', source);
+  logger.info('Read patch file: %s', patch);
 
+  const sourceCrc32 = crcHash.createHash('crc32').update(sourceFile).digest('hex');
   const sourceMd5 = crypto.createHash('md5').update(sourceFile).digest('hex');
-  const patchMd5 = crypto.createHash('md5').update(patchFile).digest('hex');
+  const sourceSha256 = crypto.createHash('sha256').update(sourceFile).digest('hex');
 
+  const patchCrc32 = crcHash.createHash('crc32').update(patchFile).digest('hex');
+  const patchMd5 = crypto.createHash('md5').update(patchFile).digest('hex');
+  const patchSha256 = crypto.createHash('sha256').update(patchFile).digest('hex');
+
+  logger.info('Source CRC32: %s', sourceCrc32);
   logger.info('Source MD5: %s', sourceMd5);
+  logger.info('Source SHA-256: %s', sourceSha256);
+
+  logger.info('Patch CRC32: %s', patchCrc32);
   logger.info('Patch MD5: %s', patchMd5);
+  logger.info('Patch SHA-256: %s', patchSha256);
 
   if (checkSourceMd5 && sourceMd5 !== checkSourceMd5) {
     logger.error('Source file MD5 mismatch! Expected %s', checkSourceMd5);
     return 1;
   }
-
-  const sourceSha256 = crypto.createHash('sha256').update(sourceFile).digest('hex');
-  logger.info('Source SHA-256: %s', sourceSha256);
 
   let targetFile;
 
@@ -99,9 +107,11 @@ function applyIpsPatchFile(source, patch, target, options = {}) {
     }
   }
 
+  const targetCrc32 = crcHash.createHash('crc32').update(targetFile).digest('hex');
   const targetMd5 = crypto.createHash('md5').update(targetFile).digest('hex');
   const targetSha256 = crypto.createHash('sha256').update(targetFile).digest('hex');
 
+  logger.info('Target CRC32: %s', targetCrc32);
   logger.info('Target MD5: %s', targetMd5);
   logger.info('Target SHA-256: %s', targetSha256);
 
