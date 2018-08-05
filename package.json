@@ -19,6 +19,9 @@
   "bin": {
     "ips": "lib/cli.js"
   },
+  "jest": {
+    "testEnvironment": "node"
+  },
   "dependencies": {
     "chalk": "^2.4.1",
     "commander": "^2.16.0",
