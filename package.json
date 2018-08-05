@@ -2,6 +2,11 @@
   "name": "ips.js",
   "version": "0.2.0",
   "description": "IPS patching utility",
+  "keywords": [
+    "ips",
+    "patch",
+    "rom"
+  ],
   "main": "lib/ips.js",
   "author": "Keith McKnight <keith@mcknig.ht>",
   "license": "ISC",
