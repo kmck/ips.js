@@ -11,8 +11,8 @@
   "author": "Keith McKnight <keith@mcknig.ht>",
   "license": "ISC",
   "scripts": {
-    "build": "rm -rf lib && babel src -d lib",
-    "start": "babel src -w -d lib",
+    "build": "rm -rf lib && babel src -d lib --ignore **/*.test.js",
+    "start": "babel src -w -d lib --ignore **/*.test.js",
     "lint": "eslint src",
     "test": "jest src"
   },
